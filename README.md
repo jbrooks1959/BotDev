@@ -13,7 +13,7 @@ TASK LIST - No all inclusive
 3) Parse data - done
 4) Read userid from exchange - done
 5) Read account balance for all coins - done
-6) Shut down BOT if user isn't using referral link and print message that reads "NO BOT FOR FREELOADERS. Won't use referral link No BOT for YOU! FUCK OFF" - done
+6) Shut down BOT if user is not invited done
 7) Stream data for all coins into a postgresql database (Open, high , low, close, volume) - working on it
 8) Calculate VWAP, EMA's, WMA's
 9) Create strategy - done
