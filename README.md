@@ -22,15 +22,16 @@ TASK LIST - No all inclusive
 12) Calculate % of balance to use in trade from input
 13) Write code to make buy based on strategy
 14) Set BUY and SELL Conditions
-15) Write code to place limit sell order for percent profit % or $ amount wanted
-16) Option 2 write code to place sell at time of next flag (sell flag if bought, buy flag if shorting). 
-17) Capture execution of order, price, and time on entering trade
-18) Capture execution of order, price and time at close of trade send both to database, calculate percent gain per trade, daily, weekly and monthly. 
-19) Create web interface for inputs
-20) Show activity on web interface.  
-21) One bot do all calculations and send signals to slave bots, that way BOTS can be shut down remotely if users don't pay.  
-22) User logins for their BOT or run each bot in separate docker container.
-23) Write code for stop loss and stop loss time delay
+15) Create functions and Classes to organize code and make it modular
+16) Write code to place limit sell order for percent profit % or $ amount wanted
+17) Option 2 write code to place sell at time of next flag (sell flag if bought, buy flag if shorting). 
+18) Capture execution of order, price, and time on entering trade
+19) Capture execution of order, price and time at close of trade send both to database, calculate percent gain per trade, daily, weekly and monthly. 
+20) Create web interface for inputs
+21) Show activity on web interface.  
+22) One bot do all calculations and send signals to slave bots, that way BOTS can be shut down remotely if users don't pay.  
+23) User logins for their BOT or run each bot in separate docker container.
+24) Write code for stop loss and stop loss time delay
 
 Server Components
 
