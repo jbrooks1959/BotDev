@@ -18,16 +18,29 @@ in_position = False
 # vols = []
 smaT = []
 # src = closes
-period = 5
+period = 21
+weight = period * (period +1)/2
+print("Weight Factor is:")
+print(weight)
 # in_position = False
 trade_symbol = "btcusdt"
 trade_in_dollars = "Yes"
 trade_using_percent_of_wallet = "Yes"
 trade_quantity = 0.05  # Can be % of wallet
 
+def weight(data, period):
+    weight = period * (period +1)/2
+    return weight
+
+
+def wma(series, period):
+    return series.rolling(period).apply(
+        lambda prices: np.dot(prices, np.arange(1, period + 1)) / np.arange(1, period + 1).sum(), raw=True)
 
 
 
+print("This is it")
+#print(weight(21))
 
 def on_open(ws):
     print('Connection Established')
@@ -53,36 +66,25 @@ def on_message(ws, message):
     closes.append(float(close))
     #print("closes")
     #print(closes)
-    data_df = pd.DataFrame(closes, columns = ['Close']) 
-    #close_df = close_df.rename(column = {'0':'Close'})
-    #close_df['close'] = closes_df[0]
-    #print(closes_df.head())
-    #Hull Moving Average
-    #Integer(SquareRoot(Period)) WMA [2 x Integer(Period/2) WMA(Price) - Period WMA(Price)]
-    #hullma = wma(2 * wma(src1, np.int(len1 / 2)) - wma(src1, len1), np.int(np.sqrt(len1)))
-    #data_df['EMA'] = data_df[close].ewm(span=21, adjust=False).mean()
-    #DataFrame.rolling(21, min_periods=21, freq=None, center=False, win_type=None, on=Close, axis=0, closed=None)
-    #weight = np.arrange(1, 28) #this creates an array with integers 1 to 10 included
-    #data_df['WMA'] = data_df.apply(lambda Close: np.dot(Close, weight)/weight.sum(), raw=True)
-    #data_df.head()
-    #data_df['SMA 9'] = smma[1] * (len - 1) + src) / len
-    
-    data_df['SMA 9'] = np.round(data_df['Close'].rolling(window=9).mean())
-    data_df['SMA 21'] = np.round(data_df['Close'].rolling(window=21).mean())
-    data_df['EMA 21'] = np.round(data_df.loc[0:, 'SMA 21'].ewm(span=21, adjust=False).mean())
-        
-    #print(data_df.head())
+    data_df = pd.DataFrame(closes, columns = ['Close'])
+    series = data_df["Close"]
+    #print(series)
+    #print("one way")
+    #print(weight(data_df['Close'], 21))
+    len1 = 10
+    src1 = data_df["Close"]
+    #hullma = wma(2 * wma(close, np.int(period / 2)) - wma(close, period), np.int(np.sqrt(period))) 
+    #print(hullma)
+    hullma = wma(2 * wma(src1, np.int(len1 / 2)) - wma(src1, len1), np.int(np.sqrt(len1)))
+    data_df['SMA 9'] = np.round(data_df['Close'].rolling(window=9).mean()) # Correct
+    data_df['SMA 21'] = np.round(data_df['Close'].rolling(window=21).mean()) #Correct
+    data_df['EMA 21'] = np.round(data_df['Close'].ewm( span=21, adjust=True,  min_periods=21, axis=0).mean())
+    data_df["WMA"] = np.round(wma(series, 21))
+    data_df["Hull MA"] = np.round(hullma)
     print(data_df)
     
     
-    #sma = sum(closes) / len(closes)
-    print("EMA of Closes")
-    #display(data_df.dtypes) 
-    #src1 = 'Close'
-    #len1 = 21
-    #data_df = int(np.sqrt(len1) * data_df['EMA'] * [2 * int(len1/2)])
-    #data_df['hullma'] = data_df['EMA'](2) # * data_df['EMA'](src1, int(len1 / 2)) - data_df['EMA'](src1, len1), int(np.sqrt(len1)))
-    #print(data_df['Closes']['EMA'])
+    
 
 ws = websocket.WebSocketApp(socket, on_open=on_open, on_close=on_close, on_message=on_message)
 ws.run_forever()
