@@ -1,0 +1,7 @@
+python-binance
+websocket_client
+pprint36
+jsons
+numpy
+pandas
+ta
