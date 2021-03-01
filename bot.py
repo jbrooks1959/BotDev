@@ -139,9 +139,9 @@ def on_message(ws, message):
     #candles["Hull_MA"] = candles.WMA(2 * candles.WMA(src, 10 / 2) - candles.WMA(src, 10), np.sqrt(10))
     
     
-    if candles['Hull_MA'].iloc[-1] > candles['Hull_MA'].iloc[-2] and candles['Vol_Good'] == True:
+    if candles['Hull_MA'].iloc[-1] > candles['Hull_MA'].iloc[-2]:
         candles['Signal'] = 'BUY'
-    elif candles['Hull_MA'].iloc[-1] < candles['Hull_MA'].iloc[-2] and candles['Range_Good'] == True:
+    elif candles['Hull_MA'].iloc[-1] < candles['Hull_MA'].iloc[-2]:
         candles['Signal'] = 'SELL'
     else:
         candles['Signal'] = 'WAIT'
