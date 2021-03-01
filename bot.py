@@ -131,7 +131,7 @@ def on_message(ws, message):
     if candles['Volume'].iloc[-1] > 7:
        candles['Vol_Good'] = True
        
-    if candles['Range'].iloc[-1] > abs(15):
+    if candles['Range'].iloc[-1] > 15 or candles['Range'].iloc[-1] < -15:
         candles['Range_Good'] = True
     #print(candles.tail(4))
     hullma = wma(2 * wma(src, int(10 / 2)) - wma(src, 10), int(np.sqrt(10)))
