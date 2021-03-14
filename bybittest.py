@@ -4,98 +4,69 @@ Created on Thu Mar  4 18:21:48 2021
 
 @author: Administrator
 """
-import json
 import pandas as pd
 import numpy as np
-#import websocket
 from pybit import WebSocket
 from time import sleep
-import time as time
-from datetime import datetime
-feed = []
-candles = pd.DataFrame()
-#ws = WebSocket("wss://stream.bybit.com/realtime", subscriptions=["klineV2.1.BTCUSD"])
-ws = WebSocket("wss://stream.bybit.com/realtime", subscriptions=["klineV2.1.BTCUSD"])
-#socket = "wss://stream.bytick.com/realtime"
-#print(ws)
-print(ws)
-def on_open(ws):
-    print('Connection Established')
+from pandas import DataFrame, Series
+from indicators import TA
+stream = pd.DataFrame()
 
 
-def on_close(ws):
-    print("Connection Terminated")
+closes = []
+vols = []
+
+in_position = False
 
 
+period = 21 
 
-def on_message(ws, message):
-    global closes, period, candles
-    json_message = json.loads(message)
-    print(json_message)
-    #walletbal[0]['result']['EOS']['wallet_balance']
-    #candle = json.loads(message)
-    #data = pd.DataFrame.from_dict(candle, orient ='index')
-    #message = ws.fetch("klineV2.1.BTCUSD")
-    #print(message)
+# ws = WebSocket("wss://stream.bybit.com/realtime", subscriptions=["klineV2.1.BTCUSD"])
+
+# Define your endpoint URL and subscriptions.
+endpoint = 'wss://stream.bybit.com/realtime'
+subs = ["klineV2.1.BTCUSD"]
+
+# Connect without authentication!
+ws = WebSocket(endpoint, subscriptions=subs)
+
+# This is the script
 while True:
-    message = ws.fetch("klineV2.1.BTCUSD")
-    json_message = message
-    #candle = json_message
-    print(json_message)
-    data = pd.DataFrame.from_dict(message, orient ='index')
-    #print(data)
-    #--------------------------------------Test COde
-    #data = pd.DataFrame(candle.items(), columns = ['Label', 'Value'])
-   
-    #pd.set_option('display.max_columns', None)
-    #pd.options.display.float_format = '{:,.0f}'.format
-    #data.replace({'s':'Symbol', 'o':'Open', 'c':'Close',\
-         #'h':'High', 'l':'Low', 'v':'Volume', 'n':'#Trades'}, inplace=True)
-
-    #data = data.iloc[[6,7,8,9,10,11]].set_index('Label').T.apply(pd.to_numeric).astype('int64')
-    #data = data.assign(SMA_21='', EMA_21='', WMA='', Range='', Range_60='', Hull_MA='', Signal='', Vol_Good='', Range_Good='', Confirm='')
+    sleep(60)
+    pd.set_option('display.max_columns', None)
+    message = {i: ws.fetch(i) for i in subs}
+    df = pd.DataFrame.from_dict(message, orient ='index')
+    try:
+        df.drop(df.columns[[0,1,7,8,9]], axis=1, inplace=True)
+    except:
+        pass
+    stream = stream.append(df, ignore_index=True)
+    #print('\n'*20,stream.tail())
+    print('\n'*10,stream.tail().fillna(0))
     
-    #candles = candles.append(data, ignore_index=True)
-    #print('\n'*10,candles.tail().head(4).fillna(0))
-
-    #ohlc = candles
-    #ohlc = ohlc.rename(columns=str.lower)
-    #candles['SMA_21'] = TA.SSMA(ohlc, period)
-    #candles['EMA_21'] = TA.EMA(ohlc, period)
-    #candles['WMA'] = TA.WMA(ohlc, period)
-    #candles['HMA'] = TA.HMA(ohlc, period)
-   
-      
-   
-   
-    #print('\n'*10,candles.tail().head(8).fillna(0))
-    #print(candles.tail(8))
-    #----------------------------------End Test Code----------------------------------
+    stream['Vol_Good'] = stream['volume'].apply(lambda x: 1 if x > 678744 else 0)
+    #print(type(stream['Vol_Good']))
     
-    #print(type(message))
-    #print(message)  
-     #message = ws.fetch("klineV2.1.BTCUSD")
-     #data = pd.DataFrame.from_dict(message, orient ='index')
-     #sleep(1)
-     #print(message[0]['open'])
-
-     #feed.append(message)
-     #sleep(1)
-     #print(data)
-     #print(message)
-#     time.sleep(1)
-#for x in range(5):
-#     if message:
-#      for i in message:
-#           if i not in feed:
-#                feed.append(i)
-#      print(feed)
-     #else:
-     #     pass #print("Done")
-
-#print(feed)
-#sleep(1000)
-#print(feed)
-
-    #ws = WebSocket(socket, on_open=on_open, on_close=on_close, on_message=on_message)
-    #ws.run_forever()
+    
+    src = stream.close
+    ohlc = stream
+    ohlc = ohlc.rename(columns=str.lower)
+    stream['SMA_21'] = TA.SSMA(ohlc, period)
+    stream['EMA_21'] = TA.EMA(ohlc, period)
+    stream['WMA'] = TA.WMA(ohlc, 10)
+    stream['HMA'] = TA.HMA(ohlc, 2)
+    
+        
+    stream['Range'] = src - stream['open']
+    stream['AvgRange'] = stream['Range'].rolling(window=21).mean()
+   
+    try:
+        if stream['HMA'].iloc[-1] > stream['HMA'].iloc[-2] and stream['Vol_Good'].iloc[-1] == 1:
+            stream['Signal'] = "BUY"
+            
+        elif stream['HMA'].iloc[-1] < stream['HMA'].iloc[-2] and stream['Vol_Good'].iloc[-1] == 1:
+            stream['Signal'] = "SELL"
+        else:
+            stream['Signal']= 'WAIT'
+    except:
+        pass
