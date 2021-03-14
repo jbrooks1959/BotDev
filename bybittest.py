@@ -32,7 +32,7 @@ ws = WebSocket(endpoint, subscriptions=subs)
 
 # This is the script
 while True:
-    sleep(60)
+    sleep(45)
     pd.set_option('display.max_columns', None)
     message = {i: ws.fetch(i) for i in subs}
     df = pd.DataFrame.from_dict(message, orient ='index')
@@ -58,15 +58,15 @@ while True:
     
         
     stream['Range'] = src - stream['open']
-    stream['AvgRange'] = stream['Range'].rolling(window=21).mean()
+    stream['AvgRange'] = stream['Range'].rolling(window=7).mean()
    
     try:
         if stream['HMA'].iloc[-1] > stream['HMA'].iloc[-2] and stream['Vol_Good'].iloc[-1] == 1:
-            stream['Signal'] = "BUY"
-            
+            stream.loc[stream.index[-1], 'Signal'] = "BUY"
+           
         elif stream['HMA'].iloc[-1] < stream['HMA'].iloc[-2] and stream['Vol_Good'].iloc[-1] == 1:
-            stream['Signal'] = "SELL"
+            stream.loc[stream.index[-1], 'Signal'] = "SELL"
         else:
-            stream['Signal']= 'WAIT'
+            stream.loc[stream.index[-1], 'Signal'] = "WAIT"
     except:
         pass
