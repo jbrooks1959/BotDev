@@ -56,6 +56,15 @@ while True:
     stream['WMA'] = TA.WMA(ohlc, 10)
     stream['HMA'] = TA.HMA(ohlc, 2)
     
+    try:
+        if stream['EMA_21'].iloc[-1] > stream['EMA_21'].iloc[-2]:
+                stream.loc[stream.index[-1], 'EMA_Dir'] = "UP"
+        elif stream['EMA_21'].iloc[-1] < stream['EMA_21'].iloc[-2]:
+                stream.loc[stream.index[-1], 'EMA_Dir'] = "DWN"
+        else:
+            stream.loc[stream.index[-1], 'EMA_Dir'] = "FLAT"
+    except:
+        pass
         
     stream['Range'] = src - stream['open']
     stream['AvgRange'] = stream['Range'].rolling(window=7).mean()
