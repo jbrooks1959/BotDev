@@ -32,7 +32,7 @@ ws = WebSocket(endpoint, subscriptions=subs)
 
 # This is the script
 while True:
-    sleep(45)
+    sleep(10)
     pd.set_option('display.max_columns', None)
     message = {i: ws.fetch(i) for i in subs}
     df = pd.DataFrame.from_dict(message, orient ='index')
@@ -55,27 +55,54 @@ while True:
     stream['EMA_21'] = TA.EMA(ohlc, period)
     stream['WMA'] = TA.WMA(ohlc, 10)
     stream['HMA'] = TA.HMA(ohlc, 2)
+    stream['OHLC4'] = (stream['open'] + stream['high'] + stream['low'] + stream['close'])/4
     
     try:
         if stream['EMA_21'].iloc[-1] > stream['EMA_21'].iloc[-2]:
                 stream.loc[stream.index[-1], 'EMA_Dir'] = "UP"
-        elif stream['EMA_21'].iloc[-1] < stream['EMA_21'].iloc[-2]:
-                stream.loc[stream.index[-1], 'EMA_Dir'] = "DWN"
+        #elif stream['EMA_21'].iloc[-1] < stream['EMA_21'].iloc[-2]:
+                #stream.loc[stream.index[-1], 'EMA_Dir'] = "DWN"
         else:
-            stream.loc[stream.index[-1], 'EMA_Dir'] = "FLAT"
+            stream.loc[stream.index[-1], 'EMA_Dir'] = "DWN"
+            
+       
+    except:
+        pass
+     
+    
+    try:
+        if stream['HMA'].iloc[-1] > stream['HMA'].iloc[-2]:
+                stream.loc[stream.index[-1], 'HMA_Dir'] = 1
+        elif stream['HMA'].iloc[-1] < stream['HMA'].iloc[-2]:
+                stream.loc[stream.index[-1], 'HMA_Dir'] = -1
+        else:
+            stream.loc[stream.index[-1], 'HMA_Dir'] = 0
+            
     except:
         pass
         
+   
+    
+    try:
+        if stream['HMA'].iloc[-1] > stream['HMA'].iloc[-2]:
+            stream['TestSig'] = 1
+        else:
+            stream['TestSig'] = 0
+    except:              
+            pass
     stream['Range'] = src - stream['open']
     stream['AvgRange'] = stream['Range'].rolling(window=7).mean()
-   
+    stream['AvgHMA'] = stream['HMA'].rolling(window=7).mean()
     try:
-        if stream['HMA'].iloc[-1] > stream['HMA'].iloc[-2] and stream['Vol_Good'].iloc[-1] == 1:
+        if stream['AvgHMA'].iloc[-1] > stream['AvgHMA'].iloc[-2]: # and stream['HMA_Dir'] > 19.9:  # and stream['EMA_Dir'].iloc[-1] == "UP"
             stream.loc[stream.index[-1], 'Signal'] = "BUY"
            
-        elif stream['HMA'].iloc[-1] < stream['HMA'].iloc[-2] and stream['Vol_Good'].iloc[-1] == 1:
+        elif stream['AvgHMA'].iloc[-1] < stream['AvgHMA'].iloc[-2]: # and stream['EMA_Dir'].iloc[-1] == "DWN"
             stream.loc[stream.index[-1], 'Signal'] = "SELL"
         else:
             stream.loc[stream.index[-1], 'Signal'] = "WAIT"
     except:
         pass
+    
+    
+   
