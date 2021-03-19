@@ -65,7 +65,8 @@ while True:
         else:
             stream.loc[stream.index[-1], 'EMA_Dir'] = "DWN"
             
-       
+        #else:
+            #stream.loc[stream.index[-1], 'EMA_Dir'] = "FLAT"
     except:
         pass
      
@@ -78,10 +79,12 @@ while True:
         else:
             stream.loc[stream.index[-1], 'HMA_Dir'] = 0
             
+        #else:
+            #stream.loc[stream.index[-1], 'HMA_Dir'] = "FLAT"
     except:
         pass
         
-   
+    #print(stream['HMA_Dir'])
     
     try:
         if stream['HMA'].iloc[-1] > stream['HMA'].iloc[-2]:
@@ -105,4 +108,13 @@ while True:
         pass
     
     
-   
+    #try:
+        #if stream['close'].iloc[-1] < stream['EMA_21'].iloc[-1] and stream['EMA_Dir'] == "UP":
+            #stream.loc[stream.index[-1], 'Signal1'] = "BUY"
+           
+        #elif stream['close'].iloc[-1] > stream['EMA_21'].iloc[-1] and stream['EMA_Dir'] == "DWN":
+            #stream.loc[stream.index[-1], 'Signal1'] = "SELL"
+        #else:
+            #stream.loc[stream.index[-1], 'Signal1'] = "WAIT"
+    #except:
+        #pass
